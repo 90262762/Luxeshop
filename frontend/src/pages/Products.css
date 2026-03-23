@@ -1,0 +1,117 @@
+.products-page { padding: 2.5rem 0 4rem; }
+
+.products-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.products-header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+.search-label { color: var(--text-light); font-size: 0.95rem; }
+.results-count { color: var(--text-light); font-size: 0.88rem; }
+.products-controls { display: flex; gap: 0.75rem; align-items: center; }
+.sort-select { min-width: 180px; }
+.filter-toggle { display: none; }
+
+.products-layout { display: grid; grid-template-columns: 260px 1fr; gap: 2rem; align-items: start; }
+
+/* Sidebar */
+.products-sidebar {
+  background: white; border-radius: var(--radius);
+  padding: 1.5rem; box-shadow: var(--shadow);
+  position: sticky; top: 90px;
+}
+
+.review-actions {
+  display: flex; gap: 0.4rem; margin-left: auto;
+}
+.review-action-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 0.9rem; padding: 0.2rem 0.4rem;
+  border-radius: 4px; transition: background 0.2s;
+}
+.review-action-btn:hover { background: var(--bg); }
+.review-edit-form {
+  margin-top: 0.75rem; padding: 0.75rem;
+  background: var(--bg); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.sidebar-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.5rem;
+}
+.sidebar-header h3 { font-size: 1.1rem; }
+.sidebar-close { display: none; background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+
+.filter-group { margin-bottom: 1.75rem; }
+.filter-group h4 { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.85rem; }
+
+.filter-btn {
+  display: block; width: 100%; text-align: left;
+  padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+  background: none; border: none; cursor: pointer;
+  font-size: 0.9rem; color: var(--text);
+  margin-bottom: 0.2rem; transition: var(--transition);
+}
+.filter-btn:hover { background: var(--bg); color: var(--accent); }
+.filter-btn.active { background: rgba(233,69,96,0.1); color: var(--accent); font-weight: 600; }
+
+.price-inputs { display: flex; align-items: center; gap: 0.5rem; }
+.price-inputs .form-control { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
+.price-inputs span { color: var(--text-light); }
+
+.products-sidebar {
+  /* position: fixed; */
+  /* width: min(300px, 85vw);   */
+  /* transform: translateX(-110%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); */
+}
+.products-sidebar.open {
+  transform: translateX(0);
+}
+
+/* Pagination */
+.pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2.5rem; }
+.page-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: white; border: 1.5px solid var(--border);
+  font-size: 0.9rem; cursor: pointer; font-weight: 600;
+  transition: var(--transition);
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+.empty-state { text-align: center; padding: 5rem 0; color: var(--text-light); }
+.empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.empty-state h3 { font-size: 1.3rem; color: var(--text); margin-bottom: 0.5rem; }
+
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .filter-toggle-btn {
+    width: 100%; justify-content: center;
+    padding: 0.75rem; font-size: 0.95rem;
+  }
+  .sort-select {
+    width: 100%; margin-top: 0.5rem;
+  }
+  .products-toolbar {
+    flex-direction: column; gap: 0.5rem;
+  }
+}
+@media (max-width: 900px) {
+  .products-layout { grid-template-columns: 1fr; }
+  .filter-toggle { display: flex; }
+  .products-sidebar {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    border-radius: 0; overflow-y: auto; padding-top: 2rem;
+  }
+  .products-sidebar.open { display: block; }
+  .sidebar-close { display: block; }
+}
+@media (max-width: 480px) {
+  .products-header { flex-direction: column; align-items: flex-start; }
+  .sort-select { width: 100%; }
+  .products-controls { width: 100%; flex-direction: row-reverse; }
+}
