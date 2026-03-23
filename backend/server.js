@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://luxeshop-lac.vercel.app/',  // ← your Vercel URL
+    'https://luxeshop-lac.vercel.app',  // ← your Vercel URL
   ],
   credentials: true,
 }));
