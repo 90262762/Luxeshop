@@ -1,16 +1,23 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
+const createTransporter = () => nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
   family: 4,
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
 const sendOTPEmail = async (email, otp, name) => {
-  const mailOptions = {
+  const transporter = createTransporter();
+  
+  await transporter.sendMail({
     from: `"LuxeShop" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Your LuxeShop OTP Verification Code',
@@ -32,8 +39,7 @@ const sendOTPEmail = async (email, otp, name) => {
         </div>
       </div>
     `,
-  };
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 module.exports = { sendOTPEmail };
