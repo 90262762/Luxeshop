@@ -346,6 +346,27 @@
   flex-shrink: 0;
 }
 
+/* ── Invoice button dark mode ── */
+[data-theme='dark'] .invoice-btn {
+  background: #1a1a2e;
+  border: 1.5px solid #2a2a3e;
+  color: #e8e6f0;
+}
+
+[data-theme='dark'] .invoice-btn:hover {
+  background: #2a2a3e;
+  color: white;
+  border-color: #3a3a5e;
+}
+
+/* Invoice icon inside button */
+[data-theme='dark'] .invoice-btn svg,
+[data-theme='dark'] .invoice-btn i,
+[data-theme='dark'] .invoice-btn span {
+  color: #e8e6f0 !important;
+  fill: #e8e6f0 !important;
+}
+
 /* Cancelled banner */
 .cancelled-banner {
   background: rgba(231,76,60,0.08);
