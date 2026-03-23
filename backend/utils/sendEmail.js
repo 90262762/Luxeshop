@@ -1,24 +1,10 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const createTransporter = () => nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  family: 4,
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOTPEmail = async (email, otp, name) => {
-  const transporter = createTransporter();
-  
-  await transporter.sendMail({
-    from: `"LuxeShop" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: 'LuxeShop <onboarding@resend.dev>',
     to: email,
     subject: 'Your LuxeShop OTP Verification Code',
     html: `
