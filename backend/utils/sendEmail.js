@@ -1,20 +1,11 @@
-const nodemailer = require('nodemailer');
-const createTransporter = () =>
-  nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    connectionTimeout: 20000,
-  });
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOTPEmail = async (email, otp, name) => {
   try {
-    const transporter = createTransporter();
-    await transporter.sendMail({
-      from: `"LuxeShop" <${process.env.EMAIL_USER}>`,
-      to: email,
+    await resend.emails.send({
+      from: 'LuxeShop <onboarding@resend.dev>',
+      to: [process.env.RESEND_TEST_EMAIL || email], // free tier sends to verified email only
       subject: 'Your LuxeShop OTP Verification Code',
       html: `
         <div style="font-family:'Segoe UI',sans-serif;max-width:480px;margin:0 auto;background:#f7f5f0;border-radius:16px;overflow:hidden">
