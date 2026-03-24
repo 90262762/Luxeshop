@@ -8,10 +8,7 @@ const createTransporter = () => nodemailer.createTransport({
     user: 'resend',
     pass: process.env.RESEND_API_KEY,
   },
-  tls: {
-    rejectUnauthorized: false,
-    minVersion: 'TLSv1.2',
-  },
+  
 });
 
 const sendOrderConfirmationEmail = async (order, user) => {
