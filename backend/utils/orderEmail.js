@@ -3,10 +3,10 @@ const nodemailer = require('nodemailer');
 const createTransporter = () => nodemailer.createTransport({
   host: 'smtp.resend.com',
   port: 465,
-  secure: false,
+  secure: true,
   auth: {
     user: 'resend',
-    pass: 're_BrroSqg1_JbZEGU7KbGkS8FZAypqSeVTY',
+    pass: process.env.RESEND_API_KEY,
   },
   tls: {
     rejectUnauthorized: false,
