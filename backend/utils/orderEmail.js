@@ -124,12 +124,3 @@ const sendStatusUpdateEmail = async (order, user) => {
 };
 
 module.exports = { sendOrderConfirmationEmail, sendStatusUpdateEmail };
-```
-
----
-
-## Fix 2 — Add RESEND_API_KEY to Render
-
-Go to **Render** → **Environment** → add:
-```
-RESEND_API_KEY = re_xxxxxxxxxx
