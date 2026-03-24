@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const sendOTPEmail = async (email, otp, name) => {
   try {
     await resend.emails.send({
-      from: 'LuxeShop <onboarding@resend.dev>',
+      from: `"LuxeShop" <${process.env.EMAIL_USER}>`,
       to: [process.env.RESEND_TEST_EMAIL || email], // free tier sends to verified email only
       subject: 'Your LuxeShop OTP Verification Code',
       html: `
