@@ -13,9 +13,9 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); setError('');
-      console.log("ENV:", process.env.REACT_APP_API);
+      console.log("ENV:", process.env.REACT_APP_API_URL);
     try {
-      await axios.post(`${process.env.REACT_APP_API}/api/contact`, form);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/contact`, form);
       setSent(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
