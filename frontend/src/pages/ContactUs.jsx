@@ -14,7 +14,7 @@ const ContactUs = () => {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      await axios.post('/api/contact', form);
+      await axios.post(`${process.env.REACT_APP_API}/api/contact`, form);
       setSent(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
