@@ -13,6 +13,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); setError('');
+      console.log("ENV:", process.env.REACT_APP_API);
     try {
       await axios.post(`${process.env.REACT_APP_API}/api/contact`, form);
       setSent(true);
