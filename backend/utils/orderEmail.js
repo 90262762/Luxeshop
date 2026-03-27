@@ -1,26 +1,30 @@
 const sendOrderConfirmationEmail = async (order, user) => {
   try {
-    // Pre-build HTML rows for order items
-    const itemsRows = order.orderItems.map(item => `
-      <tr>
-        <td style="padding:10px;border-bottom:1px solid #f0ece5"><strong>${item.name}</strong></td>
-        <td style="padding:10px;border-bottom:1px solid #f0ece5;text-align:center">${item.qty}</td>
-        <td style="padding:10px;border-bottom:1px solid #f0ece5;text-align:right">₹${(item.price * item.qty).toLocaleString()}</td>
-      </tr>
-    `).join('');
+
+    // ❌ REMOVE this HTML approach
+    // const itemsRows = order.orderItems.map(item => `<tr>...</tr>`).join('');
+
+    // ✅ REPLACE with plain text items
+    const itemsList = order.orderItems.map(item =>
+      `${item.name} | Qty: ${item.qty} | ₹${(item.price * item.qty).toLocaleString()}`
+    ).join('\n');
 
     const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'origin': 'http://localhost'
+      },
       body: JSON.stringify({
         service_id:  process.env.EMAILJS_SERVICE_ID,
         template_id: process.env.EMAILJS_ORDER_TEMPLATE_ID,
         user_id:     process.env.EMAILJS_PUBLIC_KEY,
+        accessToken: process.env.EMAILJS_PRIVATE_KEY,
         template_params: {
           to_email:       user.email,
           user_name:      user.name,
           order_id:       order._id.toString().slice(-6).toUpperCase(),
-          items_rows:     itemsRows,
+          items_list:     itemsList,      // ← changed from items_rows
           items_price:    `₹${order.itemsPrice?.toLocaleString()}`,
           shipping_price: order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice}`,
           total_price:    `₹${order.totalPrice?.toLocaleString()}`,
