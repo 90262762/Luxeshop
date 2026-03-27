@@ -1,13 +1,7 @@
-const Mailjet = require('node-mailjet');
-
-const client = Mailjet.apiConnect(
-  process.env.MAILJET_API_KEY,
-  process.env.MAILJET_SECRET_KEY
-);
-
 const sendOrderConfirmationEmail = async (order, user) => {
   try {
-    const itemsHTML = order.orderItems.map(item => `
+    // Pre-build HTML rows for order items
+    const itemsRows = order.orderItems.map(item => `
       <tr>
         <td style="padding:10px;border-bottom:1px solid #f0ece5"><strong>${item.name}</strong></td>
         <td style="padding:10px;border-bottom:1px solid #f0ece5;text-align:center">${item.qty}</td>
@@ -15,71 +9,31 @@ const sendOrderConfirmationEmail = async (order, user) => {
       </tr>
     `).join('');
 
-    await client.post('send', { version: 'v3.1' }).request({
-      Messages: [{
-        From: {
-          Email: process.env.EMAIL_FROM,
-          Name:  'LuxeShop',
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_ORDER_TEMPLATE_ID,
+        user_id:     process.env.EMAILJS_PUBLIC_KEY,
+        template_params: {
+          to_email:       user.email,
+          user_name:      user.name,
+          order_id:       order._id.toString().slice(-6).toUpperCase(),
+          items_rows:     itemsRows,
+          items_price:    `₹${order.itemsPrice?.toLocaleString()}`,
+          shipping_price: order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice}`,
+          total_price:    `₹${order.totalPrice?.toLocaleString()}`,
+          order_link:     `https://luxeshop-lac.vercel.app/orders/${order._id}`,
         },
-        To: [{
-          Email: user.email,
-          Name:  user.name,
-        }],
-        Subject: `Order Confirmed! #${order._id.toString().slice(-6).toUpperCase()} — LuxeShop`,
-        HTMLPart: `
-        <div style="font-family:'Segoe UI',sans-serif;max-width:580px;margin:0 auto;background:#f7f5f0;border-radius:16px;overflow:hidden">
-          <div style="background:#1a1a2e;padding:28px 32px;text-align:center">
-            <h1 style="color:white;font-size:22px;margin:0">◆ LUXE<span style="color:#e94560">SHOP</span></h1>
-          </div>
-          <div style="background:#27ae60;padding:20px 32px;text-align:center">
-            <div style="font-size:2.5rem;margin-bottom:6px">🎉</div>
-            <h2 style="color:white;margin:0;font-size:18px">Order Confirmed!</h2>
-            <p style="color:rgba(255,255,255,.85);margin:4px 0 0;font-size:14px">Thank you for shopping with LuxeShop</p>
-          </div>
-          <div style="padding:28px 32px;background:white">
-            <p style="color:#1a1a2e;font-size:16px;margin-bottom:6px">Hello <strong>${user.name}</strong> 👋</p>
-            <p style="color:#6b6b8a;font-size:14px;margin-bottom:24px">Your order has been placed successfully.</p>
-            <div style="background:#f7f5f0;border-radius:10px;padding:14px 18px;margin-bottom:20px">
-              <span style="color:#6b6b8a;font-size:13px">Order ID</span>
-              <strong style="color:#e94560;font-size:13px;float:right">#${order._id.toString().slice(-6).toUpperCase()}</strong>
-            </div>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-              <thead>
-                <tr style="background:#1a1a2e">
-                  <th style="padding:10px;text-align:left;color:white;font-size:12px">Item</th>
-                  <th style="padding:10px;text-align:center;color:white;font-size:12px">Qty</th>
-                  <th style="padding:10px;text-align:right;color:white;font-size:12px">Price</th>
-                </tr>
-              </thead>
-              <tbody>${itemsHTML}</tbody>
-            </table>
-            <div style="background:#f7f5f0;border-radius:10px;padding:16px 18px;margin-bottom:20px">
-              <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                <span style="color:#6b6b8a;font-size:13px">Subtotal</span>
-                <span style="font-size:13px">₹${order.itemsPrice?.toLocaleString()}</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                <span style="color:#6b6b8a;font-size:13px">Shipping</span>
-                <span style="font-size:13px">${order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice}`}</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;border-top:1px solid #e8e4dd;padding-top:10px">
-                <strong style="font-size:15px">Total Paid</strong>
-                <strong style="font-size:15px;color:#e94560">₹${order.totalPrice?.toLocaleString()}</strong>
-              </div>
-            </div>
-            <div style="text-align:center">
-              <a href="https://luxeshop-lac.vercel.app/orders/${order._id}"
-                style="display:inline-block;background:#e94560;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px">
-                Track Your Order →
-              </a>
-            </div>
-          </div>
-          <div style="background:#f0ece5;padding:16px 32px;text-align:center">
-            <p style="color:#aaa;font-size:12px;margin:0">© 2025 LuxeShop. All rights reserved.</p>
-          </div>
-        </div>`,
-      }],
+      }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`EmailJS Order error: ${errorText}`);
+    }
+
     console.log('✅ Order confirmation email sent to:', user.email);
   } catch (err) {
     console.error('Order email error:', err.message);
@@ -96,57 +50,38 @@ const sendStatusUpdateEmail = async (order, user) => {
     };
 
     const config = STATUS_CONFIG[order.status] || {
-      icon: '📦', color: '#1a1a2e',
-      title: 'Order Status Updated',
+      icon:    '📦',
+      color:   '#1a1a2e',
+      title:   'Order Status Updated',
       message: `Your order status has been updated to ${order.status}.`,
     };
 
-    await client.post('send', { version: 'v3.1' }).request({
-      Messages: [{
-        From: {
-          Email: process.env.EMAIL_FROM,
-          Name:  'LuxeShop',
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_STATUS_TEMPLATE_ID,
+        user_id:     process.env.EMAILJS_PUBLIC_KEY,
+        template_params: {
+          to_email:       user.email,
+          user_name:      user.name,
+          order_id:       order._id.toString().slice(-6).toUpperCase(),
+          total_price:    `₹${order.totalPrice?.toLocaleString()}`,
+          status_icon:    config.icon,
+          status_color:   config.color,
+          status_title:   config.title,
+          status_message: config.message,
+          order_link:     `https://luxeshop-lac.vercel.app/orders/${order._id}`,
         },
-        To: [{
-          Email: user.email,
-          Name:  user.name,
-        }],
-        Subject: `${config.icon} ${config.title} — Order #${order._id.toString().slice(-6).toUpperCase()}`,
-        HTMLPart: `
-        <div style="font-family:'Segoe UI',sans-serif;max-width:580px;margin:0 auto;background:#f7f5f0;border-radius:16px;overflow:hidden">
-          <div style="background:#1a1a2e;padding:24px 32px;text-align:center">
-            <h1 style="color:white;font-size:20px;margin:0">◆ LUXE<span style="color:#e94560">SHOP</span></h1>
-          </div>
-          <div style="background:${config.color};padding:24px 32px;text-align:center">
-            <div style="font-size:2.5rem;margin-bottom:8px">${config.icon}</div>
-            <h2 style="color:white;margin:0;font-size:18px">${config.title}</h2>
-          </div>
-          <div style="padding:28px 32px;background:white">
-            <p style="color:#1a1a2e;font-size:15px;margin-bottom:6px">Hello <strong>${user.name}</strong> 👋</p>
-            <p style="color:#6b6b8a;font-size:14px;margin-bottom:24px">${config.message}</p>
-            <div style="background:#f7f5f0;border-radius:10px;padding:14px 18px;margin-bottom:20px">
-              <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                <span style="color:#6b6b8a;font-size:13px">Order ID</span>
-                <strong style="color:#e94560;font-size:13px">#${order._id.toString().slice(-6).toUpperCase()}</strong>
-              </div>
-              <div style="display:flex;justify-content:space-between">
-                <span style="color:#6b6b8a;font-size:13px">Total</span>
-                <strong style="font-size:13px">₹${order.totalPrice?.toLocaleString()}</strong>
-              </div>
-            </div>
-            <div style="text-align:center">
-              <a href="https://luxeshop-lac.vercel.app/orders/${order._id}"
-                style="display:inline-block;background:#e94560;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px">
-                View Order Details →
-              </a>
-            </div>
-          </div>
-          <div style="background:#f0ece5;padding:14px 32px;text-align:center">
-            <p style="color:#aaa;font-size:12px;margin:0">© 2025 LuxeShop. All rights reserved.</p>
-          </div>
-        </div>`,
-      }],
+      }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`EmailJS Status error: ${errorText}`);
+    }
+
     console.log('✅ Status email sent to:', user.email);
   } catch (err) {
     console.error('Status email error:', err.message);

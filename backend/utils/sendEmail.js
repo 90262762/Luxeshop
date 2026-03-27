@@ -1,43 +1,25 @@
-const Mailjet = require('node-mailjet');
-
-const client = Mailjet.apiConnect(
-  process.env.MAILJET_API_KEY,
-  process.env.MAILJET_SECRET_KEY
-);
-
 const sendOTPEmail = async (email, otp, name) => {
   try {
-    await client.post('send', { version: 'v3.1' }).request({
-      Messages: [{
-        From: {
-          Email: process.env.EMAIL_FROM,
-          Name:  'LuxeShop',
+    const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_OTP_TEMPLATE_ID,
+        user_id:     process.env.EMAILJS_PUBLIC_KEY,
+        template_params: {
+          to_email: email,
+          name:     name || 'Customer',
+          otp:      otp,
         },
-        To: [{
-          Email: email,
-          Name:  name || 'Customer',
-        }],
-        Subject: 'Your LuxeShop OTP Verification Code',
-        HTMLPart: `
-          <div style="font-family:'Segoe UI',sans-serif;max-width:480px;margin:0 auto;background:#f7f5f0;border-radius:16px;overflow:hidden">
-            <div style="background:#1a1a2e;padding:28px 32px;text-align:center">
-              <h1 style="color:white;font-size:22px;margin:0">◆ LUXE<span style="color:#e94560">SHOP</span></h1>
-            </div>
-            <div style="padding:32px">
-              <h2 style="color:#1a1a2e;margin-bottom:8px">Hello ${name || 'there'} 👋</h2>
-              <p style="color:#6b6b8a;margin-bottom:24px">Use the OTP below to verify your account. It expires in <strong>10 minutes</strong>.</p>
-              <div style="background:#1a1a2e;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
-                <div style="letter-spacing:12px;font-size:36px;font-weight:700;color:white">${otp}</div>
-              </div>
-              <p style="color:#6b6b8a;font-size:13px">If you didn't request this, please ignore this email.</p>
-            </div>
-            <div style="background:#f0ece5;padding:16px 32px;text-align:center">
-              <p style="color:#aaa;font-size:12px;margin:0">© 2025 LuxeShop. All rights reserved.</p>
-            </div>
-          </div>
-        `,
-      }],
+      }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`EmailJS OTP error: ${errorText}`);
+    }
+
     console.log('✅ OTP email sent to:', email);
   } catch (err) {
     console.error('OTP email error:', err.message);
