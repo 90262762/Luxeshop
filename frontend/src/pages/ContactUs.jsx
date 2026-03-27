@@ -15,7 +15,7 @@ const ContactUs = () => {
     setLoading(true); setError('');
       console.log("ENV:", process.env.REACT_APP_API_URL);
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/contact`, form);
+      await axios.post(`${process.env.REACT_APP_API_URL}/contact`, form)
       setSent(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
